@@ -561,6 +561,14 @@ class Auth_Command extends EE_Command {
 				$auth->delete();
 			}
 
+			if ( empty( $user ) ) {
+				// Need to remove ips also.
+				$ips = Whitelist::where( [ 'site_url' => $site_url ] );
+				foreach ( $ips as $ip ) {
+					$ip->delete();
+				}
+			}
+
 			if ( 'default' === $site_url ) {
 				$this->generate_global_auth_files();
 			} else {
@@ -601,14 +609,7 @@ class Auth_Command extends EE_Command {
 						continue;
 					}
 
-					$whitelist = Whitelist::where(
-						[
-							'site_url' => $site_url,
-							'ip'       => $ip,
-						]
-					);
-
-					$whitelist[0]->delete();
+					$existing_ips[0]->delete();
 				}
 			}
 
